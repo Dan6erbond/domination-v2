@@ -14,8 +14,8 @@ class Country extends React.Component {
     return (
         <g id={this.props.id} className="landxx" onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} >
           <title>{this.props.name}</title>
-          {this.props.paths.map((path) =>
-            <path d={path} />
+          {this.props.paths.map((path, index) =>
+            <path d={path} key={index} />
           )}
         </g>
     );
@@ -43,7 +43,7 @@ export default class Domination extends React.Component {
         let path = paths[i];
         if (!("class" in path.attributes)) {
           continue;
-        } else if (path.attributes.class.includes("landxx") && path.children.length >= 1) {
+        } else if (path.attributes.class.includes("landxx") && path.children.length >= 1 && path.attributes.id.length === 2) {
           path.name = path.getElementsByTagName("title")[0].value;
           path.id = path.attributes.id;
           path.paths = [path.attributes.d];
@@ -59,7 +59,7 @@ export default class Domination extends React.Component {
         var g = gs[i];
         if (!("class" in g.attributes)) {
           continue;
-        } else if (g.attributes.class.includes("landxx") && g.children.length >= 1 && g.getElementsByTagName("title").length >= 1) {
+        } else if (g.attributes.class.includes("landxx") && g.children.length >= 1 && g.getElementsByTagName("title").length >= 1 && g.attributes.id.length === 2) {
           g.name = g.getElementsByTagName("title")[0].value;
           g.id = g.attributes.id;
           g.paths = [];
