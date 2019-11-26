@@ -12,10 +12,12 @@ class Country extends React.Component {
 
   render() {
     return (
-        <path id={this.props.id} className="landxx" d={this.props.path}
-              onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} >
+        <g id={this.props.id} className="landxx" onMouseEnter={this.props.onMouseEnter} onMouseLeave={this.props.onMouseLeave} >
           <title>{this.props.name}</title>
-        </path>
+          {this.props.paths.map((path) =>
+            <path d={path} />
+          )}
+        </g>
     );
   }
 }
@@ -43,9 +45,11 @@ export default class Domination extends React.Component {
           continue;
         } else if (path.attributes.class.includes("landxx") && path.children.length >= 1) {
           path.name = path.getElementsByTagName("title")[0].value;
-          if (!ids.includes(path.attributes.id)) {
+          path.id = path.attributes.id;
+          path.paths = [path.attributes.d];
+          if (!ids.includes(path.id)) {
             countries.push(path);
-            ids.push(path.attributes.id);
+            ids.push(path.id);
           }
         } else if (path.attributes.class.includes("oceanxx")) {
           ocean = <path id="ocean" className="oceanxx" d={path.attributes.d} />;
@@ -56,30 +60,18 @@ export default class Domination extends React.Component {
         if (!("class" in g.attributes)) {
           continue;
         } else if (g.attributes.class.includes("landxx") && g.children.length >= 1 && g.getElementsByTagName("title").length >= 1) {
+          g.name = g.getElementsByTagName("title")[0].value;
+          g.id = g.attributes.id;
+          g.paths = [];
           let paths = g.getElementsByTagName("path");
-          let found = false;
           for (let j in paths) {
             let path = paths[j];
-            if (!("class" in path.attributes)) {
-              continue;
-            } else if (path.attributes.class.includes("landxx")) {
-              found = true;
-              path.name = g.getElementsByTagName("title")[0].value;
-              path.attributes.id = g.attributes.id;
-              if (!ids.includes(path.attributes.id)) {
-                countries.push(path);
-                ids.push(path.attributes.id);
-              }
-            }
+            g.paths.push(path.attributes.d);
           }
-          if (!found) {
-            let path = paths[0];
-            path.name = g.getElementsByTagName("title")[0].value;
-            path.attributes.id = g.attributes.id;
-            if (!ids.includes(path.attributes.id)) {
-              countries.push(path);
-              ids.push(path.attributes.id);
-            }
+          if (!ids.includes(g.id)) {
+            console.log(g)
+            countries.push(g);
+            ids.push(g.id);
           }
         }
       }
@@ -93,8 +85,7 @@ export default class Domination extends React.Component {
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-30 61 2754 1398" className="map">
           {"ocean" in this.state ? this.state.ocean : null}
           {this.state.countries.map((country, index) =>
-            <Country name={country.name} key={country.attributes.id} id={country.attributes.id}
-                    path={country.attributes.d} hoverFun={this.hoverCountry}
+            <Country name={country.name} key={country.id} id={country.id} paths={country.paths}
                     onMouseEnter={() => this.mouseEnter(index)} onMouseLeave={() => this.mouseLeave()} />
           )}
         </svg>
